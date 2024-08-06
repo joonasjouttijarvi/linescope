@@ -160,7 +160,7 @@ function Git_changes()
     return count > 0 and string.format("%s%s %d ", highlight, icon, count) or ""
   end
 
-  function update_highlight()
+  function Update_highlight()
     local status_parts = {
       format_status(result.unpushed, "", "%#GitUnpushed#"),
       format_status(result.added, "", "%#GitAdded#"),
@@ -187,7 +187,7 @@ function Git_changes()
   end
 
   local function refresh_statusline()
-    update_highlight()
+    Update_highlight()
     last_good_status = git_status_result
     vim.schedule(function()
       vim.api.nvim_command("redrawstatus")
