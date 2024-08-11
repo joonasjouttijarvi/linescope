@@ -1,8 +1,8 @@
 local fn, cmd, api = vim.fn, vim.cmd, vim.api
 local Job = require("plenary.job")
-local colors = require("utils.colors")
-local lists = require("utils.lists")
-local status_mappings = require("utils.lists").status_mappings
+local colors = require("plugins.utils.colors")
+local lists = require("plugins.statusline.utils.lists")
+local status_mappings = require("plugins.statusline.utils.lists").status_mappings
 
 local catppuccin = colors.latte
 local special = colors.mocha
@@ -66,7 +66,6 @@ local git_status_result = ""
 local last_good_status = ""
 
 function Git_changes()
-  -- check if .git directory exists
   if vim.fn.isdirectory(".git") == 0 then
     git_status_result = ""
     return
@@ -150,8 +149,10 @@ function Git_changes()
     local added, deleted = 0, 0
     for _, line in ipairs(lines) do
       local a, d = line:match("(%d+)%s+(%d+)")
-      added = added + tonumber(a)
-      deleted = deleted + tonumber(d)
+      if a and d then
+        added = added + tonumber(a)
+        deleted = deleted + tonumber(d)
+      end
     end
     result.diff = added + deleted
   end
@@ -355,6 +356,10 @@ function Statusline()
 
   local copilot_icon = ""
   local function set_copilot_icon_and_color()
+    local copilot_installed = pcall(vim.fn["copilot#Enabled"])
+    if not copilot_installed then
+      copilot_icon = ""
+    end
     if vim.fn["copilot#Enabled"]() == 1 then
       vim.cmd("highlight CopilotIcon guifg=" .. detached_branch_color)
       copilot_icon = ""
