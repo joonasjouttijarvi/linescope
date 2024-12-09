@@ -1,4 +1,5 @@
-# Linescope statusline for nvim
+# Linescope 
+statusline plugin for neovim
 
 ## Features
 
@@ -15,6 +16,7 @@
 
 - Neovim >= 0.10
 - Plenary.nvim
+- Fugitive (for git integration)
 - nvim-web-devicons
 
 ### Installation
