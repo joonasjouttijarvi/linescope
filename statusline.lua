@@ -1,14 +1,12 @@
 local fn, cmd, api = vim.fn, vim.cmd, vim.api
 local Job = require("plenary.job")
-local colors = require("plugins.utils.colors")
-local lists = require("plugins.statusline.utils.lists")
-local status_mappings = require("plugins.statusline.utils.lists").status_mappings
+local colors = require("utils.colors")
+local lists = require("utils.lists")
+local status_mappings = require("utils.lists").status_mappings
 
 local catppuccin = colors.latte
 local special = colors.mocha
 local mode_colors = colors.mode_colors
-
--- Color definitions for the statusline
 
 local textColor = catppuccin.text
 local bgColor = "NONE"
@@ -200,13 +198,11 @@ function Git_changes()
     return
   end
 
-  -- Display cached value initially
   git_status_result = last_good_status
   vim.schedule(function()
     vim.api.nvim_command("redrawstatus")
   end)
 
-  -- Update cache in the background
 
   local jobs_remaining = 4
 
@@ -218,7 +214,6 @@ function Git_changes()
     end
   end
 
-  -- Run git status to get file changes asynchronously
   Job:new({
     command = "git",
     args = { "status", "--porcelain" },
@@ -230,7 +225,6 @@ function Git_changes()
     end,
   }):start()
 
-  -- Run git rev-list to get the number of unpushed commits asynchronously
   Job:new({
     command = "git",
     args = { "rev-list", "@{u}..HEAD" },
@@ -242,7 +236,6 @@ function Git_changes()
     end,
   }):start()
 
-  -- Run git rev-list to get the number of incoming commits asynchronously
   Job:new({
     command = "git",
     args = { "rev-list", "HEAD..@{u}" },
@@ -254,7 +247,6 @@ function Git_changes()
     end,
   }):start()
 
-  -- Run git diff to get the number of diff lines asynchronously
   Job:new({
     command = "git",
     args = { "diff", "--numstat", "@{u}" },
@@ -267,7 +259,6 @@ function Git_changes()
   }):start()
 end
 
--- Set highlight groups for Git changes
 vim.cmd("highlight GitAdded guifg=#a6e3a1 guibg=" .. bgColor)
 vim.cmd("highlight GitModified guifg=#dc8a78 guibg=" .. bgColor)
 vim.cmd("highlight GitDeleted guifg=#f38ba8 guibg=" .. bgColor)
@@ -368,23 +359,18 @@ function Statusline()
     end
   end
 
-  -- Call the function to set the icon and color
   set_copilot_icon_and_color()
 
-  -- statusline text color
   vim.cmd("highlight StatusLine guifg=" .. textColor .. " guibg=" .. bgColor)
 
-  -- current mode
   local mode = api.nvim_get_mode().mode
   local modeColor = mode_colors[mode] or textColor
   local warnings = Lsp_info()
   local icon = File_icon()
   mode = modes[mode] or mode:upper()
 
-  -- Set mode color
   vim.cmd("highlight ModeHighlight guifg=" .. modeColor .. " guibg=" .. bgColor)
 
-  -- Reserve space for line number and column number
   local total_lines = string.format("%-3d", fn.line("$"))
   local line_col = string.format("%4d:%-3d", fn.line("."), fn.col("."))
   local path = string.format("%-4s", fn.expand("%:p:~:h"))
@@ -409,7 +395,6 @@ function Statusline()
       .. total_lines
 end
 
--- Set up autocmd to update Git changes and redraw statusline on relevant events
 cmd([[
   augroup GitStatusline
     autocmd!
@@ -418,7 +403,6 @@ cmd([[
   augroup END
 ]])
 
--- Initial Git status update
 _G.Git_changes()
 
 cmd([[ set statusline=%!luaeval('Statusline()') ]])
