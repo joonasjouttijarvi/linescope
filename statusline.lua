@@ -1,15 +1,14 @@
 local fn, cmd, api = vim.fn, vim.cmd, vim.api
 local Job = require("plenary.job")
-local colors = require("plugins.utils.colors")
-local lists = require("plugins.statusline.utils.lists")
-local status_mappings = require("plugins.statusline.utils.lists").status_mappings
+local colors = require("utils.colors")
+local lists = require("utils.lists")
+local status_mappings = require("utils.lists").status_mappings
 
 local catppuccin = colors.latte
 local special = colors.mocha
 local mode_colors = colors.mode_colors
 
 -- Color definitions for the statusline
-
 local textColor = catppuccin.text
 local bgColor = "NONE"
 local highlightColor = catppuccin.sapphire
