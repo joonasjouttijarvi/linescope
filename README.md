@@ -25,7 +25,7 @@ statusline plugin for neovim
 
 Save the script to your Neovim configuration directory, typically located at ~/.config/nvim/lua/statusline.lua.
 
-2. Add the following line to your init.vim or init.lua file.
+2. Add to your or init.lua file.
 
    ```lua
    require('statusline')
@@ -36,15 +36,11 @@ Save the script to your Neovim configuration directory, typically located at ~/.
 
 #### Color and Icon Customization
 
-- Colors: Customize the colors in the script by modifying the colors table.
-- Icons: Change icons in the diagnosticSigns and branch_icons tables to suit your preferences.
+- Colors: Customize the colors in the script by modifying the colors table. 
+- Icons: Change icons in the diagnosticSigns and branch_icons tables.
 
 #### Branch Naming
 
-- Main, Feature, Fix, and Misc Branches: Customize the branch prefixes in the statusline.utils.lists module to match your Git workflow.
-  Usage
-  The statusline updates automatically on relevant events, such as file changes, entering a buffer, and Git operations. You can manually refresh the statusline using the :redrawstatus command.
+- Main, Feature, Fix, and Misc Branches: Customize the branch prefixes in the statusline.utils.lists module.
+  The statusline updates automatically on relevant events, such as file changes, entering a buffer, and Git operations. Manually refresh the statusline using the :redrawstatus command.
 
-### License
-
-This script is released under the MIT License.
