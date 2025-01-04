@@ -1,14 +1,15 @@
 local fn, cmd, api = vim.fn, vim.cmd, vim.api
 local Job = require("plenary.job")
-local colors = require("utils.colors")
-local lists = require("utils.lists")
-local status_mappings = require("utils.lists").status_mappings
+local colors = require("plugins.utils.colors")
+local lists = require("plugins.statusline.utils.lists")
+local status_mappings = require("plugins.statusline.utils.lists").status_mappings
 
 local catppuccin = colors.latte
 local special = colors.mocha
 local mode_colors = colors.mode_colors
 
 -- Color definitions for the statusline
+
 local textColor = catppuccin.text
 local bgColor = "NONE"
 local highlightColor = catppuccin.sapphire
@@ -16,6 +17,7 @@ local feature_branch_color = catppuccin.rosewater
 local fix_branch_color = catppuccin.red
 local misc_branch_color = special.yellow
 local detached_branch_color = special.lavender
+local attached_branch_color = special.sapphire
 local any_branch_color = special.sapphire
 
 function Lsp_info()
@@ -61,11 +63,15 @@ function Lsp_info()
   return diagnostics.errors .. diagnostics.warnings .. diagnostics.hints .. diagnostics.info .. "%#Normal#"
 end
 
+local function is_git_repo()
+  return fn.FugitiveHead() ~= ""
+end
+
 local git_status_result = ""
 local last_good_status = ""
 
 function Git_changes()
-  if vim.fn.isdirectory(".git") == 0 then
+  if not is_git_repo() then
     git_status_result = ""
     return
   end
@@ -160,7 +166,7 @@ function Git_changes()
     return count > 0 and string.format("%s%s %d ", highlight, icon, count) or ""
   end
 
-  function Update_highlight()
+  function update_highlight()
     local status_parts = {
       format_status(result.unpushed, "", "%#GitUnpushed#"),
       format_status(result.added, "", "%#GitAdded#"),
@@ -187,7 +193,7 @@ function Git_changes()
   end
 
   local function refresh_statusline()
-    Update_highlight()
+    update_highlight()
     last_good_status = git_status_result
     vim.schedule(function()
       vim.api.nvim_command("redrawstatus")
@@ -354,27 +360,51 @@ function Statusline()
   end
 
   local copilot_icon = ""
-  local function set_copilot_icon_and_color()
-    local copilot_installed = pcall(vim.fn["copilot#Enabled"])
-    if not copilot_installed then
-      copilot_icon = ""
+
+
+  local function is_copilot_enabled()
+    -- Check the legacy GitHub/copilot.vim plugin
+    local legacy_ok, legacy_result = pcall(vim.fn["copilot#Enabled"])
+    if legacy_ok and legacy_result == 1 then
+      return true
     end
-    if vim.fn["copilot#Enabled"]() == 1 then
-      vim.cmd("highlight CopilotIcon guifg=" .. detached_branch_color)
-      copilot_icon = ""
+
+    -- Check the new zbirenbaum/copilot.lua plugin's LSP client
+    local lsp_clients = vim.lsp.get_active_clients()
+    for _, client in ipairs(lsp_clients) do
+      if client.name == "copilot" then
+        return true
+      end
+    end
+
+    return false
+  end
+
+  -- Function to set the Copilot icon and its color
+  local function set_copilot_icon_and_color(attached_branch_color, detached_branch_color)
+    if is_copilot_enabled() then
+      -- Set the highlight group with the attached color
+      vim.cmd("highlight CopilotIcon guifg=" .. attached_branch_color)
+      copilot_icon = "" -- Icon when Copilot is enabled
     else
-      copilot_icon = ""
+      -- Optionally, you can set a different color when disabled
+      vim.cmd("highlight CopilotIcon guifg=" .. detached_branch_color)
+      copilot_icon = "" -- Icon when Copilot is disabled
     end
   end
 
   -- Call the function to set the icon and color
-  set_copilot_icon_and_color()
+  set_copilot_icon_and_color(attached_branch_color, detached_branch_color)
 
   -- statusline text color
   vim.cmd("highlight StatusLine guifg=" .. textColor .. " guibg=" .. bgColor)
 
   -- current mode
   local mode = api.nvim_get_mode().mode
+  local recording = vim.fn.reg_recording()
+  if recording ~= "" then
+    mode = mode .. "(Recording @ " .. recording .. ")"
+  end
   local modeColor = mode_colors[mode] or textColor
   local warnings = Lsp_info()
   local icon = File_icon()
@@ -428,3 +458,4 @@ cmd([[
     autocmd BufEnter, FileWritePost,VimEnter,FocusGained * lua set_highlights()
   augroup END
 ]])
+
