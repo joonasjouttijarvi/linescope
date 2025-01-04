@@ -9,7 +9,7 @@ statusline plugin for neovim
 - LSP Diagnostics: <br> Indicates errors, warnings, hints, and info from the language server.
 - Git Status: <br> Displays information about added, modified, deleted, and unpushed changes, as well as branch name and status.
 - Branch Icon and Coloring:<br> Highlights different types of branches (main, feature, fix, misc) with distinct colors and icons.
-- Copilot Status:<br> Shows the status of GitHub Copilot if enabled.
+- Copilot Status:<br> Shows the status of GitHub Copilot if enabled. supports (zbirenbaum copilot and github copilot)
 - Line and Column Numbers: <br>Indicates the current cursor position and total line count.
 
 ### Prerequisites
@@ -21,11 +21,9 @@ statusline plugin for neovim
 
 ### Installation
 
-1. Clone or download the repository.
+1. Install plugin with package manager (lazy etc..)
 
-Save the script to your Neovim configuration directory, typically located at ~/.config/nvim/lua/statusline.lua.
-
-2. Add to your or init.lua file.
+2. Add to your config
 
    ```lua
    require('statusline')
@@ -43,4 +41,4 @@ Save the script to your Neovim configuration directory, typically located at ~/.
 
 - Main, Feature, Fix, and Misc Branches: Customize the branch prefixes in the statusline.utils.lists module.
   The statusline updates automatically on relevant events, such as file changes, entering a buffer, and Git operations. Manually refresh the statusline using the :redrawstatus command.
-
+ 
