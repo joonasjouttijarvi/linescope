@@ -347,7 +347,6 @@ function File_component()
             path = fn.expand("%:t")
         end
 
-        -- Truncate path if needed
         if #path > config.file.max_path_length then
             path = "..." .. path:sub(-config.file.max_path_length)
         end
@@ -359,7 +358,7 @@ function File_component()
         readonly = config.file.readonly_icon
     end
 
-    return path .. icon .. readonly
+    return icon .. path .. readonly
 end
 
 function Git_component()
