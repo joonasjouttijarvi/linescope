@@ -92,6 +92,7 @@ require("linescope").setup({
 
     file = {
         show_icon = true,
+        show_path = true,
         path_type = "relative",
         max_path_length = 40,
         readonly_icon = "",
