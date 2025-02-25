@@ -87,7 +87,7 @@ require("linescope").setup({
       i = "INSERT",
       v = "VISUAL",
       V = "V-LINE",
-      [""] = "V-BLOCK",
+      ["\22"] = "V-BLOCK",
       c = "COMMAND",
       R = "REPLACE",
       t = "TERMINAL",
