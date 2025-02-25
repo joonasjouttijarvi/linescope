@@ -129,6 +129,10 @@ require("linescope").setup({
     copilot = {
         enabled_icon = "",
         disabled_icon = "",
+        colors = {
+            enabled = "#6c6f85",
+            disabled = "#6E738D",
+        }
     },
 
     position = {
