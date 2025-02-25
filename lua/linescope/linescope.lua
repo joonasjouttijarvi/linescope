@@ -540,12 +540,12 @@ cmd([[
 _G.Git_changes()
 
 -- Set highlights on startup
-set_highlights()
+Set_highlights()
 
 cmd([[
   augroup HighlightGroups
     autocmd!
-    autocmd BufEnter, FileWritePost,VimEnter,FocusGained * lua set_highlights()
+    autocmd BufEnter, FileWritePost,VimEnter,FocusGained * lua Set_highlights()
   augroup END
 ]])
 
