@@ -55,6 +55,10 @@ M.config = {
             staged_deleted = "",
             unpushed = "⇡",
             incoming = "⇣",
+            diff = "~",
+            copied = "󰆏",
+            unmerged = "",
+            conflict = "",
         },
     },
 
@@ -71,6 +75,10 @@ M.config = {
     copilot = {
         enabled_icon = "",
         disabled_icon = "",
+        colors = {
+            enabled = "#6c6f85",
+            disabled = "#6E738D",
+        },
     },
 
     position = {

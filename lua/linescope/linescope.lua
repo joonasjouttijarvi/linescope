@@ -2,7 +2,6 @@ local fn, cmd, api = vim.fn, vim.cmd, vim.api
 local Job = require("plenary.job")
 local config = require("linescope").config
 local colors = require("linescope.utils.colors")
-local lists = require("linescope.utils.lists")
 local status_mappings = require("linescope.utils.lists").status_mappings
 local branch_lists = require("linescope.utils.lists")
 
@@ -12,7 +11,6 @@ local mode_colors = colors.mode_colors
 
 local textColor = catppuccin.text
 local bgColor = config.background
-local highlightColor = catppuccin.sapphire
 local feature_branch_color = catppuccin.rosewater
 local fix_branch_color = catppuccin.red
 local misc_branch_color = special.yellow
@@ -20,7 +18,7 @@ local detached_branch_color = special.lavender
 local attached_branch_color = special.sapphire
 local any_branch_color = special.sapphire
 
-function set_highlights()
+function Set_highlights()
     -- statusline text color
     vim.cmd("highlight StatusLine guifg=" .. textColor .. " guibg=" .. bgColor)
 
@@ -197,26 +195,26 @@ function Git_changes()
 
     function update_highlight()
         local status_parts = {
-            format_status(result.unpushed, "", "%#GitUnpushed#"),
+            format_status(result.unpushed, config.git.icons.unpushed, "%#GitUnpushed#"),
             format_status(result.added, config.git.icons.added, "%#GitAdded#"),
-            format_status(result.staged_added, config.git.icons.added, "%#GitStagedAdded#"),
+            format_status(result.staged_added, config.git.icons.staged_added, "%#GitStagedAdded#"),
             format_status(result.modified, config.git.icons.modified, "%#GitModified#"),
-            format_status(result.staged_modified, config.git.icons.modified, "%#GitStagedModified#"),
+            format_status(result.staged_modified, config.git.icons.staged_modified, "%#GitStagedModified#"),
             format_status(result.deleted, config.git.icons.deleted, "%#GitDeleted#"),
-            format_status(result.staged_deleted, config.git.icons.deleted, "%#GitStagedDeleted#"),
+            format_status(result.staged_deleted, config.git.icons.staged_deleted, "%#GitStagedDeleted#"),
             format_status(result.untracked, config.git.icons.untracked, "%#GitUntracked#"),
             format_status(result.renamed, config.git.icons.renamed, "%#GitRenamed#"),
-            format_status(result.diff, "~", "%#GitDiff#"),
-            format_status(result.copied, "󰆏", "%#GitCopied#"),
-            format_status(result.unmerged, "", "%#GitUnmerged#"),
-            format_status(result.incoming, "", "%#GitIncoming#"),
-            format_status(result.both_deleted, "", "%#GitConflict#"),
-            format_status(result.added_by_us, "", "%#GitConflict#"),
-            format_status(result.deleted_by_them, "", "%#GitConflict#"),
-            format_status(result.added_by_them, "", "%#GitConflict#"),
-            format_status(result.deleted_by_us, "", "%#GitConflict#"),
-            format_status(result.both_added, "", "%#GitConflict#"),
-            format_status(result.both_modified, "", "%#GitConflict#"),
+            format_status(result.diff, config.git.icons.diff, "%#GitDiff#"),
+            format_status(result.copied, config.git.icons.copied, "%#GitCopied#"),
+            format_status(result.unmerged, config.git.icons.unmerged, "%#GitUnmerged#"),
+            format_status(result.incoming, config.git.icons.incoming, "%#GitIncoming#"),
+            format_status(result.both_deleted, config.git.icons.conflict, "%#GitConflict#"),
+            format_status(result.added_by_us, config.git.icons.conflict, "%#GitConflict#"),
+            format_status(result.deleted_by_them, config.git.icons.conflict, "%#GitConflict#"),
+            format_status(result.added_by_them, config.git.icons.conflict, "%#GitConflict#"),
+            format_status(result.deleted_by_us, config.git.icons.conflict, "%#GitConflict#"),
+            format_status(result.both_added, config.git.icons.conflict, "%#GitConflict#"),
+            format_status(result.both_modified, config.git.icons.conflict, "%#GitConflict#"),
         }
         git_status_result = table.concat(status_parts)
     end
@@ -383,18 +381,30 @@ function Git_component()
         local branch_name = branch
         local branch_type = "misc" -- Default
 
-        -- Check branch type
-        if vim.tbl_contains(branch_lists.main_branches, branch) then
-            branch_type = "main"
+        -- Check if branch is detached (like HEAD or SHA)
+        local is_detached = branch:match("^HEAD") or branch:match("^%x+$")
+
+        -- Determine branch category
+        if is_detached then
+            branch_type = "detached" -- It's a detached HEAD or SHA
+        elseif vim.tbl_contains(branch_lists.main_branches, branch) then
+            branch_type = "main" -- Main branch
         elseif branch_starts_with_prefix(branch, branch_lists.feature_branches) then
-            branch_type = "feature"
+            branch_type = "feature" -- Feature branch
         elseif branch_starts_with_prefix(branch, branch_lists.fix_branches) then
-            branch_type = "fix"
+            branch_type = "fix" -- Fix branch
+        else
+            branch_type = "attached" -- Default for other attached branches
         end
 
+        -- Select appropriate color
         local branch_color
         if branch_type == "main" then
             branch_color = any_branch_color
+        elseif branch_type == "attached" then
+            branch_color = attached_branch_color
+        elseif branch_type == "detached" then
+            branch_color = detached_branch_color
         elseif branch_type == "feature" then
             branch_color = feature_branch_color
         elseif branch_type == "fix" then
@@ -438,13 +448,20 @@ function Copilot_component()
         return false
     end
 
+    local result = ""
+
+    -- Define highlight groups with explicit background NONE to avoid inheritance
+    vim.cmd("highlight CopilotEnabled guifg=" .. config.copilot.colors.enabled .. " guibg=NONE")
+    vim.cmd("highlight CopilotDisabled guifg=" .. config.copilot.colors.disabled .. " guibg=NONE")
+
+    -- Check if Copilot is loaded and enabled
     if is_copilot_enabled() then
-        vim.cmd("highlight CopilotIcon guifg=" .. attached_branch_color)
-        return "%#CopilotIcon#" .. config.copilot.enabled_icon .. "%* "
+        result = "%#CopilotEnabled#" .. config.copilot.enabled_icon .. "%*"
     else
-        vim.cmd("highlight CopilotIcon guifg=" .. detached_branch_color)
-        return "%#CopilotIcon#" .. config.copilot.disabled_icon .. "%* "
+        result = "%#CopilotDisabled#" .. config.copilot.disabled_icon .. "%*"
     end
+
+    return result
 end
 
 function Position_component()
