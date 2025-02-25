@@ -421,6 +421,7 @@ function Git_component()
         result = result .. " " .. git_status_result
     end
 
+    -- Return non-empty result even when on right side
     return result
 end
 
@@ -510,8 +511,12 @@ function Statusline()
     for _, component_name in ipairs(config.component_order.right) do
         if config.components[component_name] then
             local component
-            if component_name == "copilot" then
+            if component_name == "git" then
+                component = Git_component()
+            elseif component_name == "copilot" then
                 component = Copilot_component()
+            elseif component_name == "lsp" then
+                component = Lsp_component()
             elseif component_name == "position" then
                 component = Position_component()
             end
