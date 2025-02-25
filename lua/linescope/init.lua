@@ -34,9 +34,11 @@ M.config = {
 
     file = {
         show_icon = true,
+        show_path = true,
         path_type = "relative",
         max_path_length = 40,
         readonly_icon = "",
+        modified_icon = "",
     },
 
     git = {

@@ -337,28 +337,51 @@ end
 function File_component()
     local path = ""
     local readonly = ""
+    local modified = ""
 
+    -- Get path only if show_path is true
     if config.file.show_path then
         if config.file.path_type == "relative" then
             path = fn.expand("%:~:.")
         elseif config.file.path_type == "absolute" then
             path = fn.expand("%:p")
         else
-            path = fn.expand("%:t")
+            path = fn.expand("%:t")  -- Filename only
         end
 
+        -- Truncate path if needed
         if #path > config.file.max_path_length then
             path = "..." .. path:sub(-config.file.max_path_length)
         end
+        
+        -- Use [No Name] for empty buffers
+        if path == "" then
+            path = "[No Name]"
+        end
     end
 
+    -- Get file icon (if enabled)
     local icon = config.file.show_icon and File_icon() or ""
-
+    
+    -- Add status indicators
     if vim.bo.readonly then
-        readonly = config.file.readonly_icon
+        readonly = " " .. config.file.readonly_icon
+    end
+    
+    if vim.bo.modified then
+        modified = " " .. (config.file.modified_icon or "●")
     end
 
-    return icon .. path .. readonly
+    -- Debug output (remove this in production)
+    -- print("Icon: '" .. icon .. "', Path: '" .. path .. "'")
+    
+    -- Return assembled component
+    -- If we have both icon and path, make sure there's correct spacing
+    if icon ~= "" and path ~= "" and not icon:match("%s$") then
+        icon = icon .. " "
+    end
+    
+    return icon .. path .. readonly .. modified
 end
 
 function Git_component()
