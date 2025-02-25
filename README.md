@@ -1,44 +1,67 @@
-# Linescope 
-statusline plugin for neovim
-
 ## Features
 
-- Mode Indication: <br>
-  Displays the current Neovim mode (e.g., NORMAL, INSERT, VISUAL).
-- File Information: <br> Shows the current file's icon, path, and modified status.
-- LSP Diagnostics: <br> Indicates errors, warnings, hints, and info from the language server.
-- Git Status: <br> Displays information about added, modified, deleted, and unpushed changes, as well as branch name and status.
-- Branch Icon and Coloring:<br> Highlights different types of branches (main, feature, fix, misc) with distinct colors and icons.
-- Copilot Status:<br> Shows the status of GitHub Copilot if enabled. supports (zbirenbaum copilot and github copilot)
-- Line and Column Numbers: <br>Indicates the current cursor position and total line count.
+- **Mode Indication**: Displays the current Neovim mode (NORMAL, INSERT, VISUAL)
+- **File Information**: Shows file icon, path, and modified status
+- **LSP Diagnostics**: Indicates errors, warnings, hints, and info from language servers
+- **Git Integration**: Displays branch information, added/modified/deleted/unpushed changes
+- **Branch Visualization**: Custom icons and colors for different branch types (main, feature, fix, misc)
+- **Copilot Status**: Shows GitHub Copilot status (supports both zbirenbaum/copilot.lua and github/copilot.vim)
+- **Position Information**: Shows cursor position and total line count
 
-### Prerequisites
+## Requirements
 
 - Neovim >= 0.10
-- Plenary.nvim
-- Fugitive (for git integration)
-- nvim-web-devicons
+- [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
+- [vim-fugitive](https://github.com/tpope/vim-fugitive) (for git integration)
+- [nvim-web-devicons](https://github.com/nvim-tree/nvim-web-devicons) (for file icons)
 
-### Installation
+## 📦 Installation
 
-1. Install plugin with package manager (lazy etc..)
+### [lazy.nvim](https://github.com/folke/lazy.nvim)
 
-2. Add to your config
+```lua
+ {
+"joonasjouttijarvi/linescope",
+dependencies = {
+"nvim-lua/plenary.nvim",
+"tpope/vim-fugitive",
+"nvim-tree/nvim-web-devicons"
+},
+config = function()
+require("linescope").setup({
+-- Optional configuration
+-- background = "NONE", -- Use "NONE" for transparent background
+-- auto_update = true, -- Auto update statusline on events
+})
+end,
+},
+```
 
-   ```lua
-   require('statusline')
+### [packer.nvim](https://github.com/wbthomason/packer.nvim)
 
-   ```
+```lua
+use {
+  "joonasjouttijarvi/linescope",
+  requires = {
+    "nvim-lua/plenary.nvim",
+    "tpope/vim-fugitive",
+    "nvim-tree/nvim-web-devicons"
+  },
+  config = function()
+    require("linescope").setup({
+      -- Optional configuration
+    })
+  end
+}
+```
 
-### Configuration
+## Configuration
 
-#### Color and Icon Customization
+Linescope works with minimal configuration, but can be customized:
 
-- Colors: Customize the colors in the script by modifying the colors table. 
-- Icons: Change icons in the diagnosticSigns and branch_icons tables.
-
-#### Branch Naming
-
-- Main, Feature, Fix, and Misc Branches: Customize the branch prefixes in the statusline.utils.lists module.
-  The statusline updates automatically on relevant events, such as file changes, entering a buffer, and Git operations. Manually refresh the statusline using the :redrawstatus command.
- 
+```lua
+require("linescope").setup({
+  background = "#1a1b26", -- Custom background color or "NONE" for transparent
+  auto_update = true,     -- Auto update statusline on events
+})
+```

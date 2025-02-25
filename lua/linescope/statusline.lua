@@ -1,7 +1,8 @@
 local fn, cmd, api = vim.fn, vim.cmd, vim.api
 local Job = require("plenary.job")
-local colors = require("plugins.utils.colors")
-local lists = require("plugins.statusline.utils.lists")
+local config = require("linescope").config
+local colors = config.colors
+local lists = config.branch_lists
 local status_mappings = require("plugins.statusline.utils.lists").status_mappings
 
 local catppuccin = colors.latte
