@@ -153,12 +153,6 @@ require("linescope").setup({
         },
     },
 
-    branch_lists = {
-        main_branches = nil,
-        feature_branches = nil,
-        fix_branches = nil,
-        misc_branches = nil,
-    },
   -- Branch type lists - customize how branches are categorized
   branch_lists = {
     main_branches = { "main", "master" },  -- override defaults
