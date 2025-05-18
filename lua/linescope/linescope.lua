@@ -346,14 +346,14 @@ function File_component()
         elseif config.file.path_type == "absolute" then
             path = fn.expand("%:p")
         else
-            path = fn.expand("%:t")  -- Filename only
+            path = fn.expand("%:t") -- Filename only
         end
 
         -- Truncate path if needed
         if #path > config.file.max_path_length then
             path = "..." .. path:sub(-config.file.max_path_length)
         end
-        
+
         -- Use [No Name] for empty buffers
         if path == "" then
             path = "[No Name]"
@@ -362,25 +362,25 @@ function File_component()
 
     -- Get file icon (if enabled)
     local icon = config.file.show_icon and File_icon() or ""
-    
+
     -- Add status indicators
     if vim.bo.readonly then
         readonly = " " .. config.file.readonly_icon
     end
-    
+
     if vim.bo.modified then
         modified = " " .. (config.file.modified_icon or "●")
     end
 
     -- Debug output (remove this in production)
     -- print("Icon: '" .. icon .. "', Path: '" .. path .. "'")
-    
+
     -- Return assembled component
     -- If we have both icon and path, make sure there's correct spacing
     if icon ~= "" and path ~= "" and not icon:match("%s$") then
         icon = icon .. " "
     end
-    
+
     return icon .. path .. readonly .. modified
 end
 
@@ -410,11 +410,11 @@ function Git_component()
         if is_detached then
             branch_type = "detached" -- It's a detached HEAD or SHA
         elseif vim.tbl_contains(branch_lists.main_branches, branch) then
-            branch_type = "main" -- Main branch
+            branch_type = "main"     -- Main branch
         elseif branch_starts_with_prefix(branch, branch_lists.feature_branches) then
-            branch_type = "feature" -- Feature branch
+            branch_type = "feature"  -- Feature branch
         elseif branch_starts_with_prefix(branch, branch_lists.fix_branches) then
-            branch_type = "fix" -- Fix branch
+            branch_type = "fix"      -- Fix branch
         else
             branch_type = "attached" -- Default for other attached branches
         end
@@ -461,7 +461,7 @@ function Copilot_component()
         end
 
         -- Check the new zbirenbaum/copilot.lua plugin's LSP client
-        local lsp_clients = vim.lsp.get_active_clients()
+        local lsp_clients = vim.lsp.get_clients()
         for _, client in ipairs(lsp_clients) do
             if client.name == "copilot" then
                 return true
