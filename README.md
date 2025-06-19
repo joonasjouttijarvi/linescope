@@ -149,6 +149,6 @@ require("linescope").setup({
         },
         right = {
             section = " ", -- separator between sections on right side
-            component = " | ", -- separator between sections on right side
+            component = " | ", -- separator between components
 })
 ```
