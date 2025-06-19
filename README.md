@@ -149,22 +149,6 @@ require("linescope").setup({
         },
         right = {
             section = " ", -- separator between sections on right side
-            component = " | ", -- separator between components
-        },
-    },
-
-    branch_lists = {
-        main_branches = nil,
-        feature_branches = nil,
-        fix_branches = nil,
-        misc_branches = nil,
-    },
-  -- Branch type lists - customize how branches are categorized
-  branch_lists = {
-    main_branches = { "main", "master" },  -- override defaults
-    feature_branches = nil,
-    fix_branches = nil,
-    misc_branches = nil
-  }
+            component = " | ", -- separator between sections on right side
 })
 ```
