@@ -5,6 +5,15 @@ local colors = require("linescope.utils.colors")
 local status_mappings = require("linescope.utils.lists").status_mappings
 local branch_lists = require("linescope.utils.lists")
 
+local cache = {
+	git_repo = { value = nil, cwd = nil },
+	lsp_diagnostics = { value = "", last_update = 0 },
+	copilot = { value = nil, checked = false },
+	highlights_set = false,
+}
+
+local LSP_CACHE_MS = 500
+
 local catppuccin = colors.latte
 local special = colors.mocha
 local mode_colors = colors.mode_colors
@@ -18,7 +27,11 @@ local detached_branch_color = special.lavender
 local attached_branch_color = special.sapphire
 local any_branch_color = special.sapphire
 
-function Set_highlights()
+function Set_highlights(force)
+	if cache.highlights_set and not force then
+		return
+	end
+
 	-- statusline text color
 	vim.cmd("highlight StatusLine guifg=" .. textColor .. " guibg=" .. bgColor)
 
@@ -37,9 +50,21 @@ function Set_highlights()
 	vim.cmd("highlight GitUnpushed guifg=#ff9e64 guibg=" .. bgColor)
 	vim.cmd("highlight GitConflict guifg=#ff6c6b guibg=" .. bgColor)
 	vim.cmd("highlight GitDiff guifg=#4c4f69 guibg=" .. bgColor)
+
+	-- Copilot highlights
+	vim.cmd("highlight CopilotEnabled guifg=" .. config.copilot.colors.enabled .. " guibg=NONE")
+	vim.cmd("highlight CopilotDisabled guifg=" .. config.copilot.colors.disabled .. " guibg=NONE")
+
+	cache.highlights_set = true
 end
 
 function Lsp_info()
+	local now = vim.loop.now()
+	-- Return cached value if still valid
+	if now - cache.lsp_diagnostics.last_update < LSP_CACHE_MS then
+		return cache.lsp_diagnostics.value
+	end
+
 	local count = {}
 	local levels = {
 		errors = vim.diagnostic.severity.ERROR,
@@ -79,16 +104,26 @@ function Lsp_info()
 		end
 	end
 
-	return diagnostics.errors .. diagnostics.warnings .. diagnostics.hints .. diagnostics.info .. "%#Normal#"
+	local result = diagnostics.errors .. diagnostics.warnings .. diagnostics.hints .. diagnostics.info .. "%#Normal#"
+	cache.lsp_diagnostics = { value = result, last_update = now }
+	return result
 end
 
 local function is_git_repo()
+	local cwd = vim.loop.cwd()
+	if cache.git_repo.cwd == cwd and cache.git_repo.value ~= nil then
+		return cache.git_repo.value
+	end
+
 	local handle = io.popen("git rev-parse --is-inside-work-tree 2>/dev/null")
 	if handle then
 		local result = handle:read("*a")
 		handle:close()
-		return result:match("true") ~= nil
+		local is_repo = result:match("true") ~= nil
+		cache.git_repo = { value = is_repo, cwd = cwd }
+		return is_repo
 	end
+	cache.git_repo = { value = false, cwd = cwd }
 	return false
 end
 
@@ -247,7 +282,6 @@ function Git_changes()
 		end
 	end
 
-	-- Run git status to get file changes asynchronously
 	Job:new({
 		command = "git",
 		args = { "status", "--porcelain" },
@@ -259,7 +293,6 @@ function Git_changes()
 		end,
 	}):start()
 
-	-- Run git rev-list to get the number of unpushed commits asynchronously
 	Job:new({
 		command = "git",
 		args = { "rev-list", "@{u}..HEAD" },
@@ -271,7 +304,6 @@ function Git_changes()
 		end,
 	}):start()
 
-	-- Run git rev-list to get the number of incoming commits asynchronously
 	Job:new({
 		command = "git",
 		args = { "rev-list", "HEAD..@{u}" },
@@ -283,7 +315,6 @@ function Git_changes()
 		end,
 	}):start()
 
-	-- Run git diff to get the number of diff lines asynchronously
 	Job:new({
 		command = "git",
 		args = { "diff", "--numstat", "@{u}" },
@@ -459,37 +490,33 @@ end
 
 function Copilot_component()
 	local function is_copilot_enabled()
-		-- Check the legacy GitHub/copilot.vim plugin
+		if cache.copilot.checked then
+			return cache.copilot.value
+		end
+
 		local legacy_ok, legacy_result = pcall(vim.fn["copilot#Enabled"])
 		if legacy_ok and legacy_result == 1 then
+			cache.copilot = { value = true, checked = true }
 			return true
 		end
 
-		-- Check the new zbirenbaum/copilot.lua plugin's LSP client
 		local lsp_clients = vim.lsp.get_clients()
 		for _, client in ipairs(lsp_clients) do
 			if client.name == "copilot" then
+				cache.copilot = { value = true, checked = true }
 				return true
 			end
 		end
 
+		cache.copilot = { value = false, checked = true }
 		return false
 	end
 
-	local result = ""
-
-	-- Define highlight groups with explicit background NONE to avoid inheritance
-	vim.cmd("highlight CopilotEnabled guifg=" .. config.copilot.colors.enabled .. " guibg=NONE")
-	vim.cmd("highlight CopilotDisabled guifg=" .. config.copilot.colors.disabled .. " guibg=NONE")
-
-	-- Check if Copilot is loaded and enabled
 	if is_copilot_enabled() then
-		result = "%#CopilotEnabled#" .. config.copilot.enabled_icon .. "%*"
+		return "%#CopilotEnabled#" .. config.copilot.enabled_icon .. "%*"
 	else
-		result = "%#CopilotDisabled#" .. config.copilot.disabled_icon .. "%*"
+		return "%#CopilotDisabled#" .. config.copilot.disabled_icon .. "%*"
 	end
-
-	return result
 end
 
 function Position_component()
@@ -511,7 +538,6 @@ end
 function Statusline()
 	local segments = {}
 
-	-- Build left side components
 	for _, component_name in ipairs(config.component_order.left) do
 		if config.components[component_name] then
 			local component
@@ -532,10 +558,8 @@ function Statusline()
 		end
 	end
 
-	-- Add spacer
 	table.insert(segments, "%=")
 
-	-- Build right side components
 	for _, component_name in ipairs(config.component_order.right) do
 		if config.components[component_name] then
 			local component
@@ -568,18 +592,32 @@ cmd([[
   augroup END
 ]])
 
--- Initial Git status update
 _G.Git_changes()
 
 -- Set highlights on startup
 Set_highlights()
 
+-- Only reset highlights on colorscheme change
 cmd([[
   augroup HighlightGroups
     autocmd!
-    autocmd BufEnter, FileWritePost,VimEnter,FocusGained * lua Set_highlights()
+    autocmd ColorScheme * lua Set_highlights(true)
   augroup END
 ]])
+
+-- Invalidate copilot cache when LSP clients change
+vim.api.nvim_create_autocmd({ "LspAttach", "LspDetach" }, {
+	callback = function()
+		cache.copilot = { value = nil, checked = false }
+	end,
+})
+
+-- Invalidate git repo cache when directory changes
+vim.api.nvim_create_autocmd("DirChanged", {
+	callback = function()
+		cache.git_repo = { value = nil, cwd = nil }
+	end,
+})
 
 -- Set statusline
 cmd([[ set statusline=%!luaeval('Statusline()') ]])
