@@ -55,100 +55,23 @@ use {
 
 ## Configuration
 
-Linescope works with minimal configuration. The following defaults:
+Linescope configs.
 
 ```lua
 require("linescope").setup({
-    background = "NONE",
-    auto_update = true,
+    background = "...",
+    auto_update = true|false,
 
-    components = {
-        mode = true,
-        file = true,
-        git = true,
-        lsp = true,
-        copilot = true,
-        position = true,
-    },
+    components = { mode, file, git, lsp, copilot, position },
+    component_order = { left = {...}, right = {...} },
 
-    component_order = {
-        left = { "mode", "file", "git", "lsp" },
-        right = { "copilot", "position" },
-    },
-
-    mode = {
-        icons = true,
-        names = {
-            n = "NORMAL",
-            i = "INSERT",
-            v = "VISUAL",
-            V = "VISUAL LINE",
-            ["\22"] = "V-BLOCK",
-            c = "COMMAND",
-            R = "REPLACE",
-            t = "TERMINAL",
-        },
-    },
-
-    file = {
-        show_icon = true,
-        show_path = true,
-        path_type = "relative",
-        max_path_length = 40,
-        readonly_icon = "",
-    },
-
-    git = {
-        show_branch = true,
-        max_branch_length = 20,
-        branch_icon = "",
-        show_status = true,
-        icons = {
-            added = "",
-            modified = "",
-            deleted = "",
-            renamed = "",
-            untracked = "?",
-            staged_added = "",
-            staged_modified = "",
-            staged_deleted = "",
-            unpushed = "⇡",
-            incoming = "⇣",
-        },
-    },
-
-    lsp = {
-        diagnostics_icon = "",
-        error_icon = "",
-        warning_icon = "",
-        info_icon = "",
-        hint_icon = "",
-        show_message = true,
-        message_length = 30,
-    },
-
-    copilot = {
-        enabled_icon = "",
-        disabled_icon = "",
-        colors = {
-            enabled = "#6c6f85",
-            disabled = "#6E738D",
-        }
-    },
-
-    position = {
-        show_line_column = true,
-        show_progress = true,
-        progress_icon = "☰",
-    },
-
-    separators = {
-        left = {
-            section = " ", -- separator between sections on left side
-            component = " | ", -- separator between components
-        },
-        right = {
-            section = " ", -- separator between sections on right side
-            component = " | ", -- separator between components
+    mode = { icons, names },
+    file = { show_icon, show_path, path_type, max_path_length, readonly_icon },
+    git = { show_branch, max_branch_length, branch_icon, show_status, icons },
+    lsp = { diagnostics_icon, error_icon, warning_icon, info_icon, hint_icon, show_message, message_length },
+    copilot = { enabled_icon, disabled_icon, colors },
+    position = { show_line_column, show_progress, progress_icon },
+    separators = { left = {...}, right = {...} },
 })
 ```
+
