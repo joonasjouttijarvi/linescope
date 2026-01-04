@@ -61,6 +61,7 @@ Colors = {
         V = "#f38ba8",
         R = "#fab387",
         t = "#f5c2e7",
+        recording = "#f38ba8",
     },
 }
 return Colors

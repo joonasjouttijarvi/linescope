@@ -1,3 +1,4 @@
+local vim = vim
 local fn, cmd, api = vim.fn, vim.cmd, vim.api
 local Job = require("plenary.job")
 local config = require("linescope").config
@@ -350,12 +351,18 @@ end
 function Mode_component()
 	local mode = api.nvim_get_mode().mode
 	local recording = vim.fn.reg_recording()
-	if recording ~= "" then
-		mode = mode .. "(Recording @ " .. recording .. ")"
-	end
+	local is_recording = recording ~= ""
 
-	local mode_name = config.mode.names[mode] or mode:upper()
-	local modeColor = config.mode.colors and config.mode.colors[mode] or mode_colors[mode] or textColor
+	local mode_name
+	local modeColor
+
+	if is_recording then
+		mode_name = config.mode.names.recording or ("RECORDING @" .. recording)
+		modeColor = config.mode.colors and config.mode.colors.recording or mode_colors.recording or textColor
+	else
+		mode_name = config.mode.names[mode] or mode:upper()
+		modeColor = config.mode.colors and config.mode.colors[mode] or mode_colors[mode] or textColor
+	end
 
 	-- Set mode color
 	vim.cmd("highlight ModeHighlight guifg=" .. modeColor .. " guibg=" .. bgColor)
@@ -368,7 +375,6 @@ function File_component()
 	local readonly = ""
 	local modified = ""
 
-	-- Get path only if show_path is true
 	if config.file.show_path then
 		if config.file.path_type == "relative" then
 			path = fn.expand("%:~:.")
@@ -378,12 +384,10 @@ function File_component()
 			path = fn.expand("%:t") -- Filename only
 		end
 
-		-- Truncate path if needed
 		if #path > config.file.max_path_length then
 			path = "..." .. path:sub(-config.file.max_path_length)
 		end
 
-		-- Use [No Name] for empty buffers
 		if path == "" then
 			path = "[No Name]"
 		end
