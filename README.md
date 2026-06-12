@@ -12,8 +12,13 @@
 
 - Neovim >= 0.10
 - [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
-- [vim-fugitive](https://github.com/tpope/vim-fugitive) (for git integration)
+
+Optional:
+
+- [vim-fugitive](https://github.com/tpope/vim-fugitive) or [gitsigns.nvim](https://github.com/lewis6991/gitsigns.nvim) (faster branch updates; linescope falls back to calling git directly)
 - [nvim-web-devicons](https://github.com/nvim-tree/nvim-web-devicons) (for file icons)
+
+Run `:checkhealth linescope` to verify your setup.
 
 ## 📦 Installation
 
@@ -65,13 +70,12 @@ require("linescope").setup({
     components = { mode, file, git, lsp, copilot, position },
     component_order = { left = {...}, right = {...} },
 
-    mode = { icons, names },
-    file = { show_icon, show_path, path_type, max_path_length, readonly_icon },
+    mode = { names, colors },
+    file = { show_icon, show_path, path_type, max_path_length, readonly_icon, modified_icon },
     git = { show_branch, max_branch_length, branch_icon, show_status, icons },
-    lsp = { diagnostics_icon, error_icon, warning_icon, info_icon, hint_icon, show_message, message_length },
+    lsp = { error_icon, warning_icon, info_icon, hint_icon },
     copilot = { enabled_icon, disabled_icon, colors },
     position = { show_line_column, show_progress, progress_icon },
     separators = { left = {...}, right = {...} },
 })
 ```
-

@@ -2,9 +2,13 @@ local vim = vim
 local M = {}
 
 local function file_icon()
+	local ok, devicons = pcall(require, "nvim-web-devicons")
+	if not ok then
+		return ""
+	end
 	local filename = vim.fn.expand("%:t")
 	local extension = vim.fn.expand("%:e")
-	local icon = require("nvim-web-devicons").get_icon(filename, extension)
+	local icon = devicons.get_icon(filename, extension)
 	if icon then
 		return icon .. " "
 	end

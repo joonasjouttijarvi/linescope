@@ -78,12 +78,12 @@ M.misc_branches = {
 	"meta",
 }
 M.status_mappings = {
-	["^%sA"] = "staged_added",
-	["^%sM"] = "staged_modified",
-	["^%sD"] = "staged_deleted",
-	["^A%s"] = "added",
-	["^M%s"] = "modified",
-	["^D%s"] = "deleted",
+	["^A%s"] = "staged_added",
+	["^M%s"] = "staged_modified",
+	["^D%s"] = "staged_deleted",
+	["^%sA"] = "added",
+	["^%sM"] = "modified",
+	["^%sD"] = "deleted",
 	["^%?%?"] = "untracked",
 	["^R%s"] = "renamed",
 	["^C%s"] = "copied",

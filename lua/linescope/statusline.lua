@@ -19,37 +19,33 @@ function M.setup(cfg)
 	components.git.create_autocmds(config)
 	components.copilot.create_autocmds()
 
-	vim.cmd([[ set statusline=%!luaeval('Statusline()') ]])
+	vim.o.statusline = "%!v:lua.require'linescope.statusline'.render()"
 end
 
-function _G.Statusline()
-	local segments = {}
-
-	for _, component_name in ipairs(config.component_order.left) do
-		if config.components[component_name] and components[component_name] then
-			local component = components[component_name].render(config)
-
-			if component and component ~= "" then
-				table.insert(segments, component)
-				table.insert(segments, config.separators.left.component)
+local function render_side(names)
+	local rendered = {}
+	for _, name in ipairs(names) do
+		if config.components[name] and components[name] then
+			local segment = components[name].render(config)
+			if segment and segment ~= "" then
+				table.insert(rendered, segment)
 			end
 		end
 	end
+	return rendered
+end
 
-	table.insert(segments, "%=")
-
-	for _, component_name in ipairs(config.component_order.right) do
-		if config.components[component_name] and components[component_name] then
-			local component = components[component_name].render(config)
-
-			if component and component ~= "" then
-				table.insert(segments, config.separators.right.component)
-				table.insert(segments, component)
-			end
-		end
+function M.render()
+	if not config then
+		return ""
 	end
 
-	return table.concat(segments)
+	local left = render_side(config.component_order.left)
+	local right = render_side(config.component_order.right)
+
+	return table.concat(left, config.separators.left.component)
+		.. "%="
+		.. table.concat(right, config.separators.right.component)
 end
 
 return M

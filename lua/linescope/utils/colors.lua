@@ -1,4 +1,4 @@
-Colors = {
+local Colors = {
 	latte = {
 		rosewater = "#dc8a78",
 		flamingo = "#DD7878",
@@ -56,7 +56,7 @@ Colors = {
 	mode_colors = {
 		n = "#89b4fa",
 		i = "#a6e3a1",
-		[""] = "#fab387",
+		["\22"] = "#fab387",
 		v = "#f38ba8",
 		V = "#f38ba8",
 		R = "#fab387",

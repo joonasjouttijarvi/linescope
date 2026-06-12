@@ -5,6 +5,8 @@ M.config = {
 	background = "NONE",
 	auto_update = true,
 
+	text_color = nil,
+
 	components = {
 		mode = true,
 		file = true,
@@ -20,7 +22,6 @@ M.config = {
 	},
 
 	mode = {
-		icons = true,
 		names = {
 			n = "NORMAL",
 			i = "INSERT",
@@ -66,13 +67,10 @@ M.config = {
 	},
 
 	lsp = {
-		diagnostics_icon = "",
 		error_icon = "",
 		warning_icon = "",
 		info_icon = "",
 		hint_icon = "",
-		show_message = true,
-		message_length = 30,
 	},
 
 	copilot = {
@@ -92,11 +90,9 @@ M.config = {
 
 	separators = {
 		left = {
-			section = " ", -- separator between sections on left side
 			component = " | ", -- separator between components
 		},
 		right = {
-			section = " ", -- separator between sections on right side
 			component = " | ", -- separator between components
 		},
 	},
@@ -129,8 +125,6 @@ function M.setup(opts)
 	if not M.config.branch_lists.misc_branches then
 		M.config.branch_lists.misc_branches = lists.misc_branches
 	end
-
-	M.config.status_mappings = lists.status_mappings
 
 	require("linescope.highlights").setup(M.config)
 	require("linescope.statusline").setup(M.config)

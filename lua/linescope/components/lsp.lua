@@ -1,58 +1,31 @@
 local vim = vim
 local M = {}
 
-local LSP_CACHE_MS = 500
-local lsp_cache = { value = "", last_update = 0 }
+local severity = vim.diagnostic.severity
+
+local levels = {
+	{ severity = severity.ERROR, group = "DiagnosticError", icon = "error_icon" },
+	{ severity = severity.WARN, group = "DiagnosticWarn", icon = "warning_icon" },
+	{ severity = severity.HINT, group = "DiagnosticHint", icon = "hint_icon" },
+	{ severity = severity.INFO, group = "DiagnosticInfo", icon = "info_icon" },
+}
 
 function M.render(config)
-	local now = vim.loop.now()
-	-- Return cached value if still valid
-	if now - lsp_cache.last_update < LSP_CACHE_MS then
-		return lsp_cache.value
-	end
+	local counts = vim.diagnostic.count(0)
+	local parts = {}
 
-	local count = {}
-	local levels = {
-		errors = vim.diagnostic.severity.ERROR,
-		warnings = vim.diagnostic.severity.WARN,
-		info = vim.diagnostic.severity.INFO,
-		hints = vim.diagnostic.severity.HINT,
-	}
-
-	for k, level in pairs(levels) do
-		count[k] = #vim.diagnostic.get(0, { severity = level })
-	end
-
-	local diagnostics = {
-		errors = "",
-		warnings = "",
-		hints = "",
-		info = "",
-	}
-
-	local diagnosticSigns = {
-		errors = config.lsp.error_icon,
-		warnings = config.lsp.warning_icon,
-		hints = config.lsp.hint_icon,
-		info = config.lsp.info_icon,
-	}
-
-	for k, v in pairs(count) do
-		if v ~= 0 then
-			diagnostics[k] = " %#LspDiagnosticsSign"
-				.. k:sub(1, 1):upper()
-				.. k:sub(2)
-				.. "#"
-				.. diagnosticSigns[k]
-				.. " "
-				.. tostring(v)
-				.. " "
+	for _, level in ipairs(levels) do
+		local count = counts[level.severity]
+		if count and count > 0 then
+			table.insert(parts, string.format(" %%#%s#%s %d ", level.group, config.lsp[level.icon], count))
 		end
 	end
 
-	local result = diagnostics.errors .. diagnostics.warnings .. diagnostics.hints .. diagnostics.info .. "%#Normal#"
-	lsp_cache = { value = result, last_update = now }
-	return result
+	if #parts == 0 then
+		return ""
+	end
+
+	return table.concat(parts) .. "%*"
 end
 
 return M
