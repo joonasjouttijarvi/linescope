@@ -17,6 +17,7 @@ function M.setup(cfg)
 	}
 
 	components.git.create_autocmds(config)
+	components.lsp.create_autocmds()
 	components.copilot.create_autocmds()
 
 	vim.o.statusline = "%!v:lua.require'linescope.statusline'.render()"
@@ -38,6 +39,11 @@ end
 function M.render()
 	if not config then
 		return ""
+	end
+
+	local special = require("linescope.special").render(config, components)
+	if special then
+		return special
 	end
 
 	local left = render_side(config.component_order.left)

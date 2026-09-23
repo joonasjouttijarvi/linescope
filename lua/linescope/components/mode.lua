@@ -20,6 +20,9 @@ function M.render(config)
 	end
 
 	local mode = vim.api.nvim_get_mode().mode
+	if not M.groups[mode] and not config.mode.names[mode] then
+		mode = mode:sub(1, 1)
+	end
 	local suffix = M.groups[mode]
 	local group = suffix and ("LineScopeMode" .. suffix) or "LineScopeModeOther"
 	local name = config.mode.names[mode] or mode:upper()

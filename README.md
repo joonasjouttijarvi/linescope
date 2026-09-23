@@ -3,9 +3,11 @@
 - **Mode Indication**: Displays the current Neovim mode (NORMAL, INSERT, VISUAL)
 - **File Information**: Shows file icon, path, and modified status
 - **LSP Diagnostics**: Indicates errors, warnings, hints, and info from language servers
+- **LSP Clients & Progress**: Shows attached language servers and their progress messages (e.g. indexing)
 - **Git Integration**: Displays branch information, added/modified/deleted/unpushed changes
 - **Branch Visualization**: Custom icons and colors for different branch types (main, feature, fix, misc)
 - **Copilot Status**: Shows GitHub Copilot status (supports both zbirenbaum/copilot.lua and github/copilot.vim)
+- **Special Buffers**: Minimal statusline for file explorers, plugin UIs, help, quickfix and terminal buffers
 - **Position Information**: Shows cursor position and total line count
 
 ## Requirements
@@ -73,9 +75,34 @@ require("linescope").setup({
     mode = { names, colors },
     file = { show_icon, show_path, path_type, max_path_length, readonly_icon, modified_icon },
     git = { show_branch, max_branch_length, branch_icon, show_status, icons },
-    lsp = { error_icon, warning_icon, info_icon, hint_icon },
+    lsp = {
+        error_icon, warning_icon, info_icon, hint_icon,
+        show_clients, client_icon, ignore_clients,
+        show_progress, progress_icon, max_progress_length,
+        colors = { clients, progress },
+    },
     copilot = { enabled_icon, disabled_icon, colors },
     position = { show_line_column, show_progress, progress_icon },
     separators = { left = {...}, right = {...} },
+    special = { enabled, filetypes, buftypes, render },
 })
+```
+
+### Special buffers
+
+File explorers, plugin UIs, help, quickfix and terminal buffers get a minimal line (mode + label) instead of the full statusline. Setting `filetypes` or `buftypes` replaces the defaults.
+
+```lua
+special = {
+    filetypes = {
+        "NvimTree", "oil", "lazy",
+        -- per-filetype renderer
+        fugitive = function(ctx) return "Git " .. ctx.label end,
+    },
+    buftypes = { "help", "quickfix", "terminal" },
+    -- renderer for every other special buffer; ctx = { bufnr, filetype, buftype, label, config, components }
+    render = function(ctx)
+        return ctx.components.mode.render(ctx.config) .. " " .. ctx.label .. "%="
+    end,
+}
 ```

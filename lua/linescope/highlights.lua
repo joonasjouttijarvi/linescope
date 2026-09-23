@@ -66,6 +66,10 @@ function M.refresh(config)
 	hl("LineScopeModeRecording", recording, bg)
 	hl("LineScopeModeOther", fallback, bg)
 
+	-- LSP highlights
+	hl("LineScopeLspClients", config.lsp.colors.clients, bg)
+	hl("LineScopeLspProgress", config.lsp.colors.progress, bg)
+
 	-- Copilot highlights
 	hl("CopilotEnabled", config.copilot.colors.enabled, bg)
 	hl("CopilotDisabled", config.copilot.colors.disabled, bg)

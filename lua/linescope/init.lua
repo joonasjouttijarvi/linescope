@@ -49,33 +49,43 @@ M.config = {
 		branch_icon = "",
 		show_status = true,
 		icons = {
-			added = "",
-			modified = "",
-			deleted = "",
-			renamed = "",
+			added = "",
+			modified = "",
+			deleted = "",
+			renamed = "",
 			untracked = "?",
-			staged_added = "",
-			staged_modified = "",
-			staged_deleted = "",
+			staged_added = "",
+			staged_modified = "",
+			staged_deleted = "",
 			unpushed = "⇡",
 			incoming = "⇣",
 			diff = "~",
 			copied = "󰆏",
-			unmerged = "",
-			conflict = "",
+			unmerged = "",
+			conflict = "",
 		},
 	},
 
 	lsp = {
-		error_icon = "",
-		warning_icon = "",
-		info_icon = "",
-		hint_icon = "",
+		error_icon = "",
+		warning_icon = "",
+		info_icon = "",
+		hint_icon = "",
+		show_clients = false,
+		client_icon = "",
+		ignore_clients = { "copilot" },
+		show_progress = true,
+		progress_icon = "󰔟",
+		max_progress_length = 40,
+		colors = {
+			clients = "#8087A2",
+			progress = "#8BD5CA",
+		},
 	},
 
 	copilot = {
-		enabled_icon = "",
-		disabled_icon = "",
+		enabled_icon = "",
+		disabled_icon = "",
 		colors = {
 			enabled = "#6c6f85",
 			disabled = "#6E738D",
@@ -85,16 +95,35 @@ M.config = {
 	position = {
 		show_line_column = true,
 		show_progress = true,
-		progress_icon = "☰",
+		progress_icon = "",
 	},
 
 	separators = {
 		left = {
-			component = " | ", -- separator between components
+			component = " | ",
 		},
 		right = {
-			component = " | ", -- separator between components
+			component = " | ",
 		},
+	},
+
+	special = {
+		enabled = true,
+		filetypes = {
+			"NvimTree",
+			"neo-tree",
+			"oil",
+			"lazy",
+			"mason",
+			"fugitive",
+			"TelescopePrompt",
+			"alpha",
+			"dashboard",
+			"Trouble",
+			"trouble",
+		},
+		buftypes = { "help", "quickfix", "terminal" },
+		render = nil,
 	},
 
 	branch_lists = {
@@ -106,7 +135,16 @@ M.config = {
 }
 
 function M.setup(opts)
-	M.config = vim.tbl_deep_extend("force", M.config, opts or {})
+	opts = opts or {}
+	M.config = vim.tbl_deep_extend("force", M.config, opts)
+
+	if opts.special then
+		M.config.special.filetypes = opts.special.filetypes or M.config.special.filetypes
+		M.config.special.buftypes = opts.special.buftypes or M.config.special.buftypes
+	end
+	if opts.lsp and opts.lsp.ignore_clients then
+		M.config.lsp.ignore_clients = opts.lsp.ignore_clients
+	end
 
 	local lists = require("linescope.utils.lists")
 
